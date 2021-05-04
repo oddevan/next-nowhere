@@ -71,7 +71,7 @@ const LargeTitle = () => (
           "dark:text-white"
         )}
       >
-        Next.Js Starter Blog
+        The Nowhereverse
       </a>
     </Link>
   </h1>
@@ -86,7 +86,7 @@ const SmallTitle = () => (
           "dark:text-white"
         )}
       >
-        Next.Js Starter Blog
+        The Nowhereverse
       </a>
     </Link>
   </h1>
