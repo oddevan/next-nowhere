@@ -8,7 +8,7 @@ export default function Home({ posts }) {
     <Layout>
       <SEO title="All posts" />
       <Bio className="my-14" />
-      {posts.map(({ frontmatter: { title, description, date }, slug }) => (
+      {posts.map(({ slug, date, title, excerpt }) => (
         <article key={slug}>
           <header className="mb-2">
             <h3 className="mb-2">
@@ -21,7 +21,7 @@ export default function Home({ posts }) {
             <span className="text-sm">{date}</span>
           </header>
           <section>
-            <p className="mb-8 text-lg">{description}</p>
+            <p className="mb-8 text-lg">{excerpt}</p>
           </section>
         </article>
       ))}
@@ -30,7 +30,7 @@ export default function Home({ posts }) {
 }
 
 export async function getStaticProps() {
-  const posts = getSortedPosts();
+  const posts = await getSortedPosts();
 
   return {
     props: {

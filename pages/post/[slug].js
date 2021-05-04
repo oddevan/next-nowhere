@@ -6,26 +6,25 @@ import style from "react-syntax-highlighter/dist/cjs/styles/prism/dracula";
 import { Layout, Image, SEO, Bio } from "@components/common";
 import { getPostBySlug, getPostsSlugs } from "@utils/posts";
 
-export default function Post({ post, frontmatter, nextPost, previousPost }) {
+export default function Post({ post, nextPost, previousPost }) {
+  const { title, date, content, tags, excerpt } = post
   return (
     <Layout>
       <SEO
-        title={frontmatter.title}
-        description={frontmatter.description || post.excerpt}
+        title={title}
+        description={excerpt}
       />
 
       <article>
         <header className="mb-8">
           <h1 className="mb-2 text-6xl font-black leading-none font-display">
-            {frontmatter.title}
+            {title}
           </h1>
-          <p className="text-sm">{frontmatter.date}</p>
+          <p className="text-sm">{date}</p>
         </header>
-        <ReactMarkdown
+        <div
           className="mb-4 prose lg:prose-lg dark:prose-dark"
-          escapeHtml={false}
-          source={post.content}
-          renderers={{ code: CodeBlock, image: MarkdownImage }}
+          dangerouslySetInnerHTML={{ __html: content }}
         />
         <hr className="mt-4" />
         <footer>
@@ -37,7 +36,7 @@ export default function Post({ post, frontmatter, nextPost, previousPost }) {
         {previousPost ? (
           <Link href={"/post/[slug]"} as={`/post/${previousPost.slug}`}>
             <a className="text-lg font-bold">
-              ← {previousPost.frontmatter.title}
+              ← {previousPost.title}
             </a>
           </Link>
         ) : (
@@ -45,7 +44,7 @@ export default function Post({ post, frontmatter, nextPost, previousPost }) {
         )}
         {nextPost ? (
           <Link href={"/post/[slug]"} as={`/post/${nextPost.slug}`}>
-            <a className="text-lg font-bold">{nextPost.frontmatter.title} →</a>
+            <a className="text-lg font-bold">{nextPost.title} →</a>
           </Link>
         ) : (
           <div />
@@ -56,7 +55,7 @@ export default function Post({ post, frontmatter, nextPost, previousPost }) {
 }
 
 export async function getStaticPaths() {
-  const paths = getPostsSlugs();
+  const paths = await getPostsSlugs();
 
   return {
     paths,
@@ -65,7 +64,7 @@ export async function getStaticPaths() {
 }
 
 export async function getStaticProps({ params: { slug } }) {
-  const postData = getPostBySlug(slug);
+  const postData = await getPostBySlug(slug);
 
   if (!postData.previousPost) {
     postData.previousPost = null;

@@ -1,6 +1,3 @@
-import matter from "gray-matter";
-import fs from "fs";
-
 export function getTumblrBaseUrl() {
   const blogAddress = 'plotholefragments.tumblr.com'
   const apiKey = 'OAUTH_CONSUMER_KEY'
@@ -8,7 +5,8 @@ export function getTumblrBaseUrl() {
 }
 
 // Get day in format: Month day, Year. e.g. April 19, 2020
-function getFormattedDate(date) {
+function getFormattedDate(dateString) {
+  const date = new Date(dateString)
   const options = { year: "numeric", month: "long", day: "numeric" };
   const formattedDate = date.toLocaleDateString("en-US", options);
 
@@ -26,14 +24,16 @@ export async function getSortedPosts() {
       tumblrFetch = await fetch(`${baseUrl}&offset=${offset}`).then(response => response.json())
       pagePosts = tumblrFetch.response.posts
       pagePosts.forEach(element => {
-          posts.push({
-              slug: element.id_string,
-              date: getFormattedDate(element.date),
-              excerpt: element.summary,
-              content: element.body,
-              tags: element.tags,
-              title: element.title ?? getFormattedDate(element.date)
-          });
+          if (element.body) {
+            posts.push({
+                slug: element.id_string,
+                date: getFormattedDate(element.date),
+                excerpt: element.summary,
+                content: element.body,
+                tags: element.tags,
+                title: element.title ?? getFormattedDate(element.date)
+            });
+          }
       });
       offset += 20
   } while(pagePosts.length)
