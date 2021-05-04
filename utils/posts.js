@@ -1,16 +1,10 @@
 import matter from "gray-matter";
 import fs from "fs";
 
-export function getPostsFolders() {
-  // Get all posts folders located in `content/posts`
-  const postsFolders = fs
-    .readdirSync(`${process.cwd()}/content/posts`)
-    .map((folderName) => ({
-      directory: folderName,
-      filename: `${folderName}.md`,
-    }));
-
-  return postsFolders;
+export function getTumblrBaseUrl() {
+  const blogAddress = 'plotholefragments.tumblr.com'
+  const apiKey = 'OAUTH_CONSUMER_KEY'
+  return `https://api.tumblr.com/v2/blog/${blogAddress}/posts?api_key=${apiKey}`
 }
 
 // Get day in format: Month day, Year. e.g. April 19, 2020
@@ -21,62 +15,50 @@ function getFormattedDate(date) {
   return formattedDate;
 }
 
-export function getSortedPosts() {
-  const postFolders = getPostsFolders();
+export async function getSortedPosts() {
+  const baseUrl = getTumblrBaseUrl();
+  const posts = []
+  let tumblrFetch = {}
+  let pagePosts = []
+  let offset = 0
 
-  const posts = postFolders
-    .map(({ filename, directory }) => {
-      // Get raw content from file
-      const markdownWithMetadata = fs
-        .readFileSync(`content/posts/${directory}/${filename}`)
-        .toString();
-
-      // Parse markdown, get frontmatter data, excerpt and content.
-      const { data, excerpt, content } = matter(markdownWithMetadata);
-
-      const frontmatter = {
-        ...data,
-        date: getFormattedDate(data.date),
-      };
-
-      // Remove .md file extension from post name
-      const slug = filename.replace(".md", "");
-
-      return {
-        slug,
-        frontmatter,
-        excerpt,
-        content,
-      };
-    })
-    .sort(
-      (a, b) => new Date(b.frontmatter.date) - new Date(a.frontmatter.date)
-    );
+  do {
+      tumblrFetch = await fetch(`${baseUrl}&offset=${offset}`).then(response => response.json())
+      pagePosts = tumblrFetch.response.posts
+      pagePosts.forEach(element => {
+          posts.push({
+              slug: element.id_string,
+              date: getFormattedDate(element.date),
+              excerpt: element.summary,
+              content: element.body,
+              tags: element.tags,
+              title: element.title ?? getFormattedDate(element.date)
+          });
+      });
+      offset += 20
+  } while(pagePosts.length)
 
   return posts;
 }
 
-export function getPostsSlugs() {
-  const postFolders = getPostsFolders();
+export async function getPostsSlugs() {
+  const posts = await getSortedPosts();
 
-  const paths = postFolders.map(({ filename }) => ({
-    params: {
-      slug: filename.replace(".md", ""),
-    },
+  const paths = posts.map(({ slug }) => ({
+    params: { slug },
   }));
 
   return paths;
 }
 
-export function getPostBySlug(slug) {
-  const posts = getSortedPosts();
+export async function getPostBySlug(slug) {
+  const posts = await getSortedPosts();
 
   const postIndex = posts.findIndex(({ slug: postSlug }) => postSlug === slug);
 
-  const { frontmatter, content, excerpt } = posts[postIndex];
-
+  const post = posts[postIndex];
   const previousPost = posts[postIndex + 1];
   const nextPost = posts[postIndex - 1];
 
-  return { frontmatter, post: { content, excerpt }, previousPost, nextPost };
+  return { post, previousPost, nextPost };
 }
