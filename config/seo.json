@@ -1,15 +1,15 @@
 {
   "siteMetadata": {
-    "title": "Next.js Starter Blog",
+    "title": "The Nowhereverse",
     "author": {
-      "name": "Jose Felix",
-      "summary": "who works building clean user interfaces with React."
+      "name": "Evan Hildreth",
+      "summary": "Quartermaster at the Nowhere Outpost"
     },
-    "description": "A blog created with Next.js and Tailwind.css",
-    "siteUrl": "https://nextjs-starter-blog-demo.netlify.app/",
+    "description": "The stories of Nowhere and its surrounding universes.",
+    "siteUrl": "https://www.nowhereverse.com/",
     "language": "en-US",
     "social": {
-      "twitter": "Jose_R_Felix"
+      "twitter": "oddevan"
     }
   }
 }
